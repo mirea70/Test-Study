@@ -52,4 +52,11 @@ public class Order extends BaseEntity {
                 .mapToInt(Product::getPrice)
                 .sum();
     }
+
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        if(orderStatus == null) {
+            throw new IllegalArgumentException("주문 상태는 Null로 변경할 수 없습니다.");
+        }
+        this.orderStatus = orderStatus;
+    }
 }
