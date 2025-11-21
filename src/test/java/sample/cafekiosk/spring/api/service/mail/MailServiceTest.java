@@ -3,9 +3,9 @@ package sample.cafekiosk.spring.api.service.mail;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sample.cafekiosk.spring.client.MailSendClient;
 import sample.cafekiosk.spring.domain.history.mail.MailSendHistory;
@@ -13,12 +13,14 @@ import sample.cafekiosk.spring.domain.history.mail.MailSendHistoryRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
 
-    @Spy
+    @Mock
     private MailSendClient mailSendClient;
 
     @Mock
@@ -33,9 +35,13 @@ class MailServiceTest {
         // given
 //        when(mailSendClient.sendEmial(anyString(), anyString(), anyString(), anyString()))
 //                .thenReturn(true);
-        doReturn(true)
-                .when(mailSendClient)
-                .sendEmial(anyString(), anyString(), anyString(), anyString());
+        BDDMockito.given(mailSendClient.sendEmial(anyString(), anyString(), anyString(), anyString()))
+                .willReturn(true);
+//        doReturn(true)
+//                .when(mailSendClient)
+//                .sendEmial(anyString(), anyString(), anyString(), anyString());
+
+
 
         // when
         boolean result = mailService.sendMail("", "", "", "");
