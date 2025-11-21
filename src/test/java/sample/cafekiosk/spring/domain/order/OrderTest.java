@@ -10,11 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static sample.cafekiosk.spring.domain.order.OrderStatus.PAYMENT_COMPLETED;
-import static sample.cafekiosk.spring.domain.product.ProductSellingStatus.SELLING;
-import static sample.cafekiosk.spring.domain.product.ProductType.HANDMADE;
 
 class OrderTest {
 
@@ -74,51 +69,6 @@ class OrderTest {
                 .price(price)
                 .sellingStatus(ProductSellingStatus.SELLING)
                 .name("메뉴 이름")
-                .build();
-    }
-
-
-    @DisplayName("주문상태 변경 시, 원하는대로 주문이 변경된다.")
-    @Test
-    void updateOrderStatus() {
-        // given
-        Order order = createOrder();
-
-        // when
-        order.updateOrderStatus(PAYMENT_COMPLETED);
-
-        // then
-        assertThat(order.getOrderStatus()).isEqualByComparingTo(PAYMENT_COMPLETED);
-    }
-
-    @DisplayName("주문상태 변경 시, Null이면 예외를 던진다.")
-    @Test
-    void updateOrderStatusWithNull() {
-        // given
-        Order order = createOrder();
-
-        // when // then
-        assertThatThrownBy(
-                () -> order.updateOrderStatus(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("주문 상태는 Null로 변경할 수 없습니다.");
-    }
-
-    private Order createOrder() {
-        Product product = createProduct("001", "아메리카노", 3000);
-
-        return Order.create(
-                List.of(product), LocalDateTime.now()
-        );
-    }
-
-    private Product createProduct(String productNumber, String name, int price) {
-        return Product.builder()
-                .productNumber(productNumber)
-                .type(HANDMADE)
-                .sellingStatus(SELLING)
-                .name(name)
-                .price(price)
                 .build();
     }
 }

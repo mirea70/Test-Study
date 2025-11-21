@@ -1,6 +1,5 @@
 package sample.cafekiosk.spring.domain.order;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static sample.cafekiosk.spring.domain.order.OrderStatus.INIT;
 import static sample.cafekiosk.spring.domain.order.OrderStatus.PAYMENT_COMPLETED;
 import static sample.cafekiosk.spring.domain.product.ProductSellingStatus.SELLING;
 import static sample.cafekiosk.spring.domain.product.ProductType.HANDMADE;
@@ -33,13 +32,13 @@ class OrderRepositoryTest {
     @Test
     void findOrdersBy() {
         // given
-        Order order1 = createOrder(LocalDateTime.of(2025, 10, 5, 15, 55));
-        Order order2 = createOrder(LocalDateTime.of(2025, 10, 7, 15, 55));
+        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
+
+        Order order1 = createOrder(INIT, LocalDateTime.of(2025, 10, 5, 15, 55));
+        Order order2 = createOrder(requestOrderStatus, LocalDateTime.of(2025, 10, 7, 15, 55));
 
         LocalDateTime startDateTime = LocalDateTime.of(2025, 10, 4, 15, 55);
         LocalDateTime endDateTime = LocalDateTime.of(2025, 10, 8, 15, 55);
-        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
-        order2.updateOrderStatus(requestOrderStatus);
 
         orderRepository.saveAll(List.of(order1, order2));
 
@@ -58,14 +57,13 @@ class OrderRepositoryTest {
     void findOrdersByBeforeStartDateTime() {
         // given
         LocalDateTime targetDateTime = LocalDateTime.of(2025, 10, 7, 15, 55);
+        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
 
-        Order order1 = createOrder(targetDateTime.minusSeconds(1));
-        Order order2 = createOrder(targetDateTime);
+        Order order1 = createOrder(INIT, targetDateTime.minusSeconds(1));
+        Order order2 = createOrder(requestOrderStatus, targetDateTime);
 
         LocalDateTime startDateTime = targetDateTime;
         LocalDateTime endDateTime = LocalDateTime.of(2025, 10, 9, 15, 55);
-        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
-        order2.updateOrderStatus(requestOrderStatus);
 
         orderRepository.saveAll(List.of(order1, order2));
 
@@ -84,14 +82,13 @@ class OrderRepositoryTest {
     void findOrdersByAfterEndDateTime() {
         // given
         LocalDateTime targetDateTime = LocalDateTime.of(2025, 10, 7, 15, 55);
+        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
 
-        Order order1 = createOrder(LocalDateTime.of(2025, 10, 5, 15, 55));
-        Order order2 = createOrder(targetDateTime);
+        Order order1 = createOrder(INIT, LocalDateTime.of(2025, 10, 5, 15, 55));
+        Order order2 = createOrder(requestOrderStatus, targetDateTime);
 
         LocalDateTime startDateTime = LocalDateTime.of(2025, 10, 3, 15, 55);
         LocalDateTime endDateTime = targetDateTime;
-        OrderStatus requestOrderStatus = PAYMENT_COMPLETED;
-        order2.updateOrderStatus(requestOrderStatus);
 
         orderRepository.saveAll(List.of(order1, order2));
 
@@ -103,12 +100,14 @@ class OrderRepositoryTest {
 
     }
 
-    private Order createOrder(LocalDateTime registeredDateTime) {
+    private Order createOrder(OrderStatus orderStatus, LocalDateTime registeredDateTime) {
         Product product = createProduct("001", "아메리카노", 3000);
 
-        return Order.create(
-            List.of(product), registeredDateTime
-        );
+        return Order.builder()
+                .orderStatus(orderStatus)
+                .registeredDateTime(registeredDateTime)
+                .products(List.of(product))
+                .build();
     }
 
     private Product createProduct(String productNumber, String name, int price) {
